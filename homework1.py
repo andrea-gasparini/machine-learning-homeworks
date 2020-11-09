@@ -2,6 +2,7 @@ import jsonlines
 import numpy as np
 from ctypes import Union
 
+from confusion_matrix import plot_confusion_matrix
 from sklearn.feature_extraction.text import HashingVectorizer, CountVectorizer, TfidfVectorizer
 from sklearn.metrics import classification_report
 from sklearn.naive_bayes import BernoulliNB, MultinomialNB
