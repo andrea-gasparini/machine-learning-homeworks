@@ -1,4 +1,5 @@
 import jsonlines
+import numpy as np
 from ctypes import Union
 
 from sklearn.feature_extraction.text import HashingVectorizer, CountVectorizer, TfidfVectorizer
@@ -31,6 +32,26 @@ def load_json_dataset(filename, has_semantic=True):
                 target_list.add(line_class)
 
     return data, target, target_list
+
+
+def process_data(data):
+    """
+    :type data: list
+    :rtype: numpy.ndarray
+    """
+
+    new_data = list()
+
+    for str_func in data:
+        list_func = [instr[1:] for instr in str_func[1:-1].split("', ")]
+
+        xor_count = 0
+        for op in list_func:
+            xor_count += op.count("xor")
+
+        new_data.append([len(list_func), xor_count])
+
+    return np.array(new_data)
 
 
 def get_vectorizer(vectorizer_type="count"):
@@ -77,6 +98,9 @@ if __name__ == "__main__":
 
     _data, y_all, class_names = load_json_dataset(dataset_filename)
 
+    X_all = process_data(_data)
+
+    '''
     _vectorizer_type = "tfid"
     _vectorizer = get_vectorizer(_vectorizer_type)
     X_all = _vectorizer.fit_transform(_data)
