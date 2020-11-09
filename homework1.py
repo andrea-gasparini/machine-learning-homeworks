@@ -1,3 +1,4 @@
+import os
 import jsonlines
 import numpy as np
 from ctypes import Union
@@ -93,6 +94,30 @@ def get_model(data_train, target_train, model_type="bernoulli"):
     return model
 
 
+def run_blindtest(model, model_type):
+    """
+    :type model: Union[BernoulliNB, MultinomialNB, DecisionTreeClassifier, SVC]
+    :type model_type: str
+    :rtype: None
+    """
+
+    blindtest_filename: str = "blindtest.json"
+    print("Running blindtest: " + blindtest_filename)
+
+    blindtest_data, _, _ = load_json_dataset(blindtest_filename, has_semantic=False)
+    X_new = process_data(blindtest_data)
+
+    filename = "results_" + model_type + ".txt"
+    full_path = os.path.join("results", filename)
+
+    with open(full_path, "w+") as f:
+        for x_new in X_new:
+            y_new = model.predict([x_new])
+            f.write(y_new[0] + "\n")
+
+    print("Results saved in " + full_path)
+
+
 if __name__ == "__main__":
     dataset_filename: str = "dataset.json"
     _model_type = "multinomial"
@@ -105,6 +130,7 @@ if __name__ == "__main__":
     _vectorizer_type = "tfid"
     _vectorizer = get_vectorizer(_vectorizer_type)
     X_all = _vectorizer.fit_transform(_data)
+    '''
 
     X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.333, random_state=42)
     print("Train: %d - Test: %d" % (X_train.shape[0], X_test.shape[0]))
@@ -112,3 +138,18 @@ if __name__ == "__main__":
     _model = get_model(X_train, y_train, _model_type)
     y_pred = _model.predict(X_test)
     print(classification_report(y_test, y_pred))
+
+    run_blindtest(_model, _model_type)
+
+    plt, _ = plot_confusion_matrix(y_test, y_pred, class_names, normalize=True)
+
+    '''
+    f = open(os.path.join("results", "results_" + _vectorizer_type + "_" + _model_type + ".txt"), "w+")
+    with jsonlines.open(blindtest_filename) as reader:
+        for line in reader:
+            X_new = _vectorizer.transform([line["lista_asm"]])
+            y_new = _model.predict(X_new)
+            f.write(y_new[0] + "\n")
+
+    f.close()
+    '''
