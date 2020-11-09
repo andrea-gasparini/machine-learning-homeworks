@@ -88,6 +88,10 @@ def get_model(data_train, target_train, model_type="bernoulli"):
     elif model_type == "multinomial":
         model = MultinomialNB().fit(data_train, target_train)
         print('Multinomial Model created')
+    elif model_type == "decision_tree":
+        model = DecisionTreeClassifier().fit(data_train, target_train)
+    elif model_type == "svm":
+        model = SVC(kernel='linear', C=1).fit(data_train, target_train)
     else:
         raise Exception(model_type + " isn't a valid model type")
 
