@@ -14,20 +14,29 @@ from sklearn.svm import SVC
 
 def load_json_dataset(filename, has_semantic=True):
     """
+    Loads the dataset from a JSON Lines file and parses it to have a list of functions.
+
+    :param filename: A JSON Lines filename
     :type filename: str
+    :param has_semantic: True if every entry of the file also has a "semantic" label (target class)
     :type has_semantic: bool
-    :rtype: (list, list, set)
+    :returns: The list of functions, the list of target classes and the set of the class names
+    :rtype: (list of list, list, set)
     """
 
     data = list()
     target = list()
     target_list = set()
 
-    with jsonlines.open(filename) as reader:
-        for line in reader:
-            line_asm = line["lista_asm"]
-            data.append(line_asm)
+    with jsonlines.open(filename) as file:
+        for line in file:
+            # loads the function as a string from the file
+            function: str = line["lista_asm"]
+            # parses the function to have a list of its instructions
+            instructions: list = [instr[1:] for instr in function[1:-1].split("', ")]
+            data.append(instructions)
 
+            # extracts the target classes list
             if has_semantic:
                 line_class = line["semantic"]
                 target.append(line_class)
@@ -38,20 +47,19 @@ def load_json_dataset(filename, has_semantic=True):
 
 def process_data(data):
     """
-    :type data: list
+    :type data: list of list
     :rtype: numpy.ndarray
     """
 
     new_data = list()
 
-    for str_func in data:
-        list_func = [instr[1:] for instr in str_func[1:-1].split("', ")]
+    for function in data:
 
         xor_count = 0
-        for op in list_func:
+        for op in function:
             xor_count += op.count("xor")
 
-        new_data.append([len(list_func), xor_count])
+        new_data.append([len(function), xor_count])
 
     return np.array(new_data)
 
@@ -76,7 +84,7 @@ def get_vectorizer(vectorizer_type="count"):
 
 def get_model(data_train, target_train, model_type="bernoulli"):
     """
-    :type data_train: list
+    :type data_train: list of list
     :type target_train: list
     :type model_type: str
     :rtype: Union[BernoulliNB, MultinomialNB, DecisionTreeClassifier, SVC]
