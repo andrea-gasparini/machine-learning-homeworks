@@ -4,6 +4,25 @@ from sklearn.utils.multiclass import unique_labels
 import matplotlib.pyplot as plt
 
 
+def plot_target_distribution(target):
+    """
+    Plots a bar histogram of the target classes distribution
+
+    :param target: The list of target classes
+    :type target: list
+    :rtype: None
+    """
+    target_dict = {name: 0 for name in set(target)}
+
+    for y in target:
+        target_dict[y] += 1
+
+    x = np.arange(len(target_dict.values()))
+    plt.bar(x, height=target_dict.values())
+    plt.xticks(x, target_dict.keys())
+    plt.show()
+
+
 def plot_confusion_matrix(y_true, y_pred, classes=None, normalize=False, title=None, cmap=plt.cm.Blues):
     """
     This function prints and plots the confusion matrix.
