@@ -23,14 +23,12 @@ def plot_target_distribution(target):
     plt.show()
 
 
-def plot_confusion_matrix(y_true, y_pred, classes=None, normalize=False, title=None, cmap=plt.cm.Blues):
+def plot_confusion_matrix(y_true, y_pred, normalize=False, title=None, cmap=plt.cm.Blues):
     """
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
     """
 
-    if classes is None:
-        classes = []
     if not title:
         if normalize:
             title = 'Normalized confusion matrix'
@@ -38,11 +36,10 @@ def plot_confusion_matrix(y_true, y_pred, classes=None, normalize=False, title=N
             title = 'Confusion matrix, without normalization'
 
     # Compute confusion matrix
-    cm = confusion_matrix(y_true, y_pred)
+    cm = confusion_matrix(y_true, y_pred, labels=None)
 
     # Only use the labels that appear in the data
-    if classes is None:
-        classes = unique_labels(y_true, y_pred)
+    classes = unique_labels(y_true, y_pred)
 
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
