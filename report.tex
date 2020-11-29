@@ -25,12 +25,11 @@
 	\newpage
 
 
-
 	\section{Introduction}
 	The task of this Homework was to build a \textit{multiclass classifier} to
 	determine whether an assembly function is an \textbf{encryption}, \textbf{math},
 	\textbf{string manipulation} or \textbf{sorting} function.
-	Formally, the task was to aproximate a mapping function:
+	Formally, the task was to approximate a mapping function:
 	\begin{equation} \label{eq:mapping-function}
 		f : X_{bin} \rightarrow \{ encryption, math, string, sort \}		
 	\end{equation}
@@ -50,11 +49,11 @@
 		\item With 6073 assembly functions, without duplicates
 	\end{itemize}
 	As we can see in \autoref{fig:datasetnodup}, removing the duplicates creates
-	an unbalanced dataset and this can lead to problems in predicting the minority
+	an unbalanced dataset and this can lead to problems such as predicting the minority
 	class. An oversampling procedure has probably been applied to obtain
 	the dataset with duplicates and solve the unbalancing problem.
-	Training a model with both versions of the dataset allowed to evaluate the
-	differences with some metrics and then choose the best one.
+	Training a model with both versions of the dataset allowed me to evaluate the
+	differences using some metrics and then choose the best one.
 
 	\begin{figure}[ht]
 		\centering
@@ -74,13 +73,14 @@
 
 
 	\subsection{Undersampling procedure}
-	Another dataset could be obtained applying an undersampling procedure on the
-	one without duplicates. 
-	In other words, removing some entries of the majority classes to obtain a
-	balanced distribution of all classes.
-	The problem with this approach is in the size of the original dataset and of
-	the minority class (\textit{sort}), the process could lead to loss of valuable
-	information and to a too small dataset. The idea was then discarded.
+	Another dataset could be obtained applying an undersampling procedure
+	-- i.e. removing some entries of the majority classes to obtain a balanced distribution
+	of all classes -- on the one without duplicates. 
+	In this case the problems with this procedure are the size of the original dataset
+	and the size of the minority class (\textit{sort}). Knowing these problems
+	I avoided this idea because it could have lead to loss of valuable information
+	for the model's training and to a dataset too small, that we cannot use because
+	the model could not learn enough information to correctly predict new instances.
 
 
 	\subsection{Data format}
@@ -96,18 +96,18 @@
 
 
 	\section{Preprocessing and feature extraction} \label{subsec:feature-extraction}
-	Since the assembly instructions were encoded as lists of strings, a first
-	approach I tried was to solve the task as a standard \textit{text classification
+	Since the assembly instructions were encoded as lists of strings, first thing
+	I tried to do was to solve the task as a standard \textit{text classification
 	problem}. In this way the features list for the model contained the 
-	occurences' number of every "word" in the assembly functions.
-	The main problem in this case was caused by the lack of a \textit{stop words}
+	occurences' number of every ``word" in the assembly functions.
+	The main issue in this case was caused by the lack of a \textit{stop words}
 	set. In fact, in a \textit{text classification problem} we should always
 	specify which words don't have to be considered because of their common use
 	in the language (such as \textit{the}, \textit{is}, \textit{which}, etc) and
 	focus on the important words instead.
 	For example counting the occurences of words representing registers wasn't
 	necessary and could lead to wrong predictions.
-	Then I changed the approach and thought of a better way to extract some specific
+	Then I thought of a better way to extract some specific
 	characteristics from the dataset to train the model.
 
 	\subsection{Characteristics of the target classes} \label{subsec:target-classes}
@@ -122,7 +122,7 @@
 		registers \texttt{xmm*} for floating point instructions
 		\item \textit{string}: uses a lot of comparisons and swap of memory locations
 	\end{itemize}
-	The point was to take advantage of these characteristics to map the dataset's
+	I have taken advantage of these characteristics to map the dataset's
 	entries to features lists that could be used to train a model.
 	Every entry in the dataset has been processed and mapped in a list with the
 	following 9 features:
@@ -150,14 +150,14 @@
 
 	The comparisons in this report are based on the results obtained from two
 	models: \textbf{Decision Tree} and \textbf{Support Vector Machine}.
-	I used different metrics to evaluate the correctness of these models, like
+	I used different metrics to evaluate the performances of these models, like
 	plotting the \textit{confusion matrices} and comparing \textit{precision},
-	\textit{recall} and \textit{f1-score}.
-	Another metric taken in consideration was the way of splitting the dataset.
+	\textit{recall} and \textit{f1 score}.
+	Another metric that I took in consideration was the way of splitting the dataset.
 	In fact the standard way is to reserve $\frac{2}{3}$ for the training
 	and $\frac{1}{3}$ for the test. Decreasing the first one and therefore
-	increasing the second one could get worse performances, but whether we still
-	get acceptable results the approach is probably working well.
+	increasing the second one could get worse performances, but if we still
+	get acceptable results it probably means that the chosen features are meaningful.
 
 	\paragraph{Precision}
 	With \textit{precision}, for a certain class $x$, we indicate the percentage of correctly
@@ -170,7 +170,7 @@
 
 	\paragraph{Recall}
 	With \textit{recall}, for a certain class $x$, we indicate the percentage of correctly
-	predicted instances among all the really $x$:
+	predicted instances among all the actual $x$:
 	\[
 		\frac{TP}{TP + FN}
 	\]
@@ -188,21 +188,21 @@
 	if it's normalized) in the true class while each column represents the instances in
 	a predicted class.
 	All correct predictions are located in the diagonal of the table, which elements
-	represent the \textit{recall} values, so it is easy to visually inspect the table
-	for prediction errors, as they will be represented by values outside the diagonal.
+	represent the \textit{recall} values, so it is easy to find visually prediction errors
+	in the table, as they will be represented by values outside the diagonal.
 
 	\subsection{Comparisons}
-	The following comparisons shows the \textit{confusions matrices} resulting
+	The following comparisons show the \textit{confusions matrices} resulting
 	of the two models' training on the dataset with duplicates (with-dup), and
 	on the dataset without duplicates (no-dup).
 	Comparisons have been made with a test size of 33\% and of 66\% to check if
-	the accuracy consequently decreases or the results remain good.
+	and how much it decreases.
 	
 	\subsubsection{Decision Tree}
 	With this model the first impression with the final features list
-	was to have an overfitting since the performance (\autoref{fig:dt-with-dup-33})
+	was to have an overfitting since the performances (\autoref{fig:dt-with-dup-33})
 	seemed to be too high.
-	An increase in the test size did not decrease the performance and this led me
+	An increase in the test size did not decrease the performances and this led me
 	to reconsider the assumption of overfitting.
 	The dataset without duplicates had a predictable result since the \textit{sort}
 	class was the minority. 
@@ -240,10 +240,9 @@
 	In this case the model needed to be configured with a kernel and a parameter
 	$C$, that have been set after some tests respectively as \texttt{linear} and
 	1 to have the best trade-off in performance and training time.
-	Compared to the Decision Tree, SVM had a little worse performance, but still
-	really good.
+	Compared to the Decision Tree, SVM had worse performances, but still good.
 	The model performed better without the duplicates, with an increase in the
-	Recall for every target class except for \textit{sort}, because it was the
+	\textit{recall} for every target class except for \textit{sort}, because it was the
 	minority class in the unbalanced dataset.
 	\begin{figure}[H]
 		\centering
@@ -277,7 +276,7 @@
 
 	\section{Conclusions}
 	The final features list defined in \autoref{subsec:target-classes} was obtained
-	after some tests with less features and more than two models. The results showed
+	after some tests with less features and more than two models. The showed results
 	seemed to be the best ones and a big increase in the performance was granted
 	by the use of the CFG features (\textit{graph\_nodes} and \textit{graph\_diam}).
 	For example by replacing \textit{graph\_nodes} with an apparently similar feature
@@ -285,16 +284,16 @@
 	
 	We can tell from the previous comparisons that Decision Tree obtains the
 	best results with both datasets. The first impression was to have an overfitting
-	since a Recall near to 0.99 seemed to be too high, but the results were still
+	since a \textit{recall} near to 0.99 seemed to be too high, but the results were still
 	good with the second dataset (no-dup) and also with an increased test size,
 	i.e. a decreased training size (that I thought should led to worse results).
 	Another reason to prefer Decision Tree was the training time, that was always
-	better than tested configurations of SVM without having worse performances.
+	better than the tested configurations of SVM without having worse performances.
 
-	In both cases the bigger problem was in the misclassification of \textit{sort}
+	In both cases the bigger issue was the misclassification of \textit{sort}
 	and \textit{string} functions, in fact both DT and SVM could classify a \textit{sort}
-	function as a \textit{string} one because of the low number of instances.
+	function as a \textit{string} one because of the few number of instances.
 	Incrementing the number of \textit{sort} instances in dataset without
 	adding duplicates would certainly improve the performances for these cases,
-	but produce this new data would require a lot of effort.
+	but produce this new data could require a lot of effort.
 \end{document}
