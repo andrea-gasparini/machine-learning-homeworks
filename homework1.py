@@ -149,7 +149,7 @@ if __name__ == "__main__":
     '''
     _vectorizer_type = "tfid"
     _vectorizer = get_vectorizer(_vectorizer_type)
-    X_all = _vectorizer.fit_transform(_data)
+    X_all = _vectorizer.fit_transform([reduce(lambda instr1, instr2 : instr1 + " " + instr2, x) for x in _data])
     '''
 
     X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.333, random_state=42)
@@ -161,15 +161,4 @@ if __name__ == "__main__":
 
     run_blindtest(_model, _model_type)
 
-    plt, _ = plot_confusion_matrix(y_test, y_pred, class_names, normalize=True)
-
-    '''
-    f = open(os.path.join("results", "results_" + _vectorizer_type + "_" + _model_type + ".txt"), "w+")
-    with jsonlines.open(blindtest_filename) as reader:
-        for line in reader:
-            X_new = _vectorizer.transform([line["lista_asm"]])
-            y_new = _model.predict(X_new)
-            f.write(y_new[0] + "\n")
-
-    f.close()
-    '''
+    
