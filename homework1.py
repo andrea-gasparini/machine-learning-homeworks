@@ -3,7 +3,7 @@ import jsonlines
 import numpy as np
 from ctypes import Union
 
-from confusion_matrix import plot_confusion_matrix
+from pyplot import plot_confusion_matrix, plot_target_distribution
 from sklearn.feature_extraction.text import HashingVectorizer, CountVectorizer, TfidfVectorizer
 from sklearn.metrics import classification_report
 from sklearn.naive_bayes import BernoulliNB, MultinomialNB, GaussianNB
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     dataset_filename: str = "dataset.json"
     _model_type = "multinomial"
 
-    _data, y_all, class_names = load_json_dataset(dataset_filename)
+    # plot_target_distribution(y_all)
 
     X_all = process_data(_data)
 
