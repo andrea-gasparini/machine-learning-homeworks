@@ -1,7 +1,10 @@
 import os
+from typing import List
+
 import jsonlines
 import numpy as np
 from ctypes import Union
+from functools import reduce
 
 from pyplot import plot_confusion_matrix, plot_target_distribution
 from sklearn.feature_extraction.text import HashingVectorizer, CountVectorizer, TfidfVectorizer
@@ -11,6 +14,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
+from networkx import info, json_graph, diameter, strongly_connected_components, DiGraph
 
 
 def load_json_dataset(filename, has_semantic=True):
@@ -22,12 +26,13 @@ def load_json_dataset(filename, has_semantic=True):
     :param has_semantic: True if every entry of the file also has a "semantic" label (target class)
     :type has_semantic: bool
     :returns: The list of functions, the list of target classes and the set of the class names
-    :rtype: (list of list, list, set)
+    :rtype: (list of list, list, set, list of DiGraph)
     """
 
     data = list()
     target = list()
     target_list = set()
+    nx_graphs: List[DiGraph] = list()
 
     with jsonlines.open(filename) as file:
         for line in file:
@@ -37,30 +42,54 @@ def load_json_dataset(filename, has_semantic=True):
             instructions: list = [instr[1:] for instr in function[1:-1].split("', ")]
             data.append(instructions)
 
+            nx_graph: DiGraph = json_graph.adjacency_graph(line["cfg"])
+            nx_graphs.append(nx_graph)
+
             # extracts the target classes list
             if has_semantic:
                 line_class = line["semantic"]
                 target.append(line_class)
                 target_list.add(line_class)
 
-    return data, target, target_list
+    return data, target, target_list, nx_graphs
 
 
-def process_data(data):
+def process_data(data, nx_graphs):
     """
     :type data: list of list
     :rtype: numpy.ndarray
     """
 
+    x64_ops = {
+        "bitwise": ["xor", "or", "and", "not"],
+        "arithmetic": ["inc", "dec", "neg", "leaq", "add", "sub", "mul", "divq"],
+        "shift": ["sal", "shl", "sar", "shr"],
+        "movement": ["lea", "mov", "push", "pop"],
+        "calls": ["call", "leave", "ret"]
+    }
+
     new_data = list()
 
-    for function in data:
+    for i, function in enumerate(data):
 
-        xor_count = 0
-        for op in function:
-            xor_count += op.count("xor")
+        bitwise_count = arithmetic_count = shift_count = calls_count = \
+            movement_count = xmm_count = cmp_count = 0
 
-        new_data.append([len(function), xor_count])
+        for instr in function:
+            bitwise_count += sum([instr.count(op) for op in x64_ops["bitwise"]])
+            shift_count += sum([instr.count(op) for op in x64_ops["shift"]])
+            movement_count += sum([instr.count(op) for op in x64_ops["movement"]])
+            arithmetic_count += sum([instr.count(op) for op in x64_ops["arithmetic"]])
+            calls_count += sum([instr.count(op) for op in x64_ops["calls"]])
+            xmm_count += instr.count("xmm")
+            cmp_count += instr.count("cmp")
+
+        graph = nx_graphs[i]
+        graph_nodes = len(graph.nodes())
+        graph_diameter = max([diameter(graph.subgraph(cc_set)) for cc_set in strongly_connected_components(graph)])
+
+        new_data.append([graph_nodes, graph_diameter, movement_count, bitwise_count,
+                        xmm_count, arithmetic_count, cmp_count, shift_count, calls_count])
 
     return np.array(new_data)
 
@@ -124,8 +153,8 @@ def run_blindtest(model, model_type):
     blindtest_filename: str = "blindtest.json"
     print("Running blindtest: " + blindtest_filename)
 
-    blindtest_data, _, _ = load_json_dataset(blindtest_filename, has_semantic=False)
-    X_new = process_data(blindtest_data)
+    blindtest_data, _, _, nx_graphs = load_json_dataset(blindtest_filename, has_semantic=False)
+    X_new = process_data(blindtest_data, nx_graphs)
 
     filename = "results_" + model_type + ".txt"
     full_path = os.path.join("results", filename)
@@ -139,12 +168,14 @@ def run_blindtest(model, model_type):
 
 
 if __name__ == "__main__":
-    dataset_filename: str = "dataset.json"
-    _model_type = "multinomial"
+    dataset_filename: str = "dataset.json"  # noduplicatedataset
+    _model_type = "decision_tree"
+
+    _data, y_all, class_names, graphs = load_json_dataset(dataset_filename)
 
     # plot_target_distribution(y_all)
 
-    X_all = process_data(_data)
+    X_all = process_data(_data, graphs)
 
     '''
     _vectorizer_type = "tfid"
@@ -152,7 +183,7 @@ if __name__ == "__main__":
     X_all = _vectorizer.fit_transform([reduce(lambda instr1, instr2 : instr1 + " " + instr2, x) for x in _data])
     '''
 
-    X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.333, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.66, random_state=42)
     print("Train: %d - Test: %d" % (X_train.shape[0], X_test.shape[0]))
 
     _model = get_model(X_train, y_train, _model_type)
@@ -161,4 +192,4 @@ if __name__ == "__main__":
 
     run_blindtest(_model, _model_type)
 
-    
+    plt, _ = plot_confusion_matrix(y_test, y_pred, normalize=True)
