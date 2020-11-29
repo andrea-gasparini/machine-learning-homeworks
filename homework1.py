@@ -25,12 +25,12 @@ def load_json_dataset(filename, has_semantic=True):
     :type filename: str
     :param has_semantic: True if every entry of the file also has a "semantic" label (target class)
     :type has_semantic: bool
-    :returns: The list of functions, the list of target classes and the set of the class names
-    :rtype: (list of list, list, set, list of DiGraph)
+    :returns: The list of functions, the list of target classes, the set of the class names and the list of DiGraphs
+    :rtype: (List[List[str]], List[str], set, List[DiGraph])
     """
 
-    data = list()
-    target = list()
+    data: List[List[str]] = list()
+    target: List[str] = list()
     target_list = set()
     nx_graphs: List[DiGraph] = list()
 
@@ -47,7 +47,7 @@ def load_json_dataset(filename, has_semantic=True):
 
             # extracts the target classes list
             if has_semantic:
-                line_class = line["semantic"]
+                line_class: str = line["semantic"]
                 target.append(line_class)
                 target_list.add(line_class)
 
@@ -56,7 +56,10 @@ def load_json_dataset(filename, has_semantic=True):
 
 def process_data(data, nx_graphs):
     """
-    :type data: list of list
+    Extract the features from the lists of assembly functions and DiGraphs
+
+    :type data: List[List[str]]
+    :type nx_graphs: List[DiGraph]
     :rtype: numpy.ndarray
     """
 
@@ -117,7 +120,7 @@ def get_model(data_train, target_train, model_type="bernoulli"):
     :type data_train: list of list
     :type target_train: list
     :type model_type: str
-    :rtype: Union[BernoulliNB, MultinomialNB, DecisionTreeClassifier, SVC]
+    :rtype: Union[BernoulliNB, MultinomialNB, DecisionTreeClassifier, SVC, GaussianNB, LogisticRegression]
     """
 
     if model_type == "bernoulli":
@@ -145,7 +148,9 @@ def get_model(data_train, target_train, model_type="bernoulli"):
 
 def run_blindtest(model, model_type):
     """
-    :type model: Union[BernoulliNB, MultinomialNB, DecisionTreeClassifier, SVC]
+    Loads the blindtest dataset and generates a result file with the prediction based on the trained model
+
+    :type model: Union[BernoulliNB, MultinomialNB, DecisionTreeClassifier, SVC, GaussianNB, LogisticRegression]
     :type model_type: str
     :rtype: None
     """
