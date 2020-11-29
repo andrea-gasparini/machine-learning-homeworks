@@ -5,3 +5,30 @@ dataset.json
 noduplicatedataset.json
 blindtest.json
 nodupblindtest.json
+
+## Core latex/pdflatex auxiliary files:
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+*.dvi
+*.cpt
+
+## Bibliography auxiliary files (bibtex/biblatex/biber):
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+
+*.fdb_latexmk
+*.synctex.gz
