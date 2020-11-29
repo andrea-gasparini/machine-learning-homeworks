@@ -6,9 +6,10 @@ from ctypes import Union
 from confusion_matrix import plot_confusion_matrix
 from sklearn.feature_extraction.text import HashingVectorizer, CountVectorizer, TfidfVectorizer
 from sklearn.metrics import classification_report
-from sklearn.naive_bayes import BernoulliNB, MultinomialNB
+from sklearn.naive_bayes import BernoulliNB, MultinomialNB, GaussianNB
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 
 
@@ -98,8 +99,15 @@ def get_model(data_train, target_train, model_type="bernoulli"):
         print('Multinomial Model created')
     elif model_type == "decision_tree":
         model = DecisionTreeClassifier().fit(data_train, target_train)
+        print('Decision Tree Model created')
     elif model_type == "svm":
         model = SVC(kernel='linear', C=1).fit(data_train, target_train)
+        print('SVM Model created')
+    elif model_type == "gauss":
+        model = GaussianNB().fit(data_train, target_train)
+        print('Gaussian Naive Bayes Model created')
+    elif model_type == "regression":
+        return LogisticRegression().fit(data_train, target_train)
     else:
         raise Exception(model_type + " isn't a valid model type")
 
