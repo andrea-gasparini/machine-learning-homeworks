@@ -11,3 +11,5 @@ The code used to solve the problem is avaiable in `homework1.py`.
 
 You can also find a report describing the implemented solution in `report.pdf`,
 with the data preprocessing, the feature extraction, the evaluation methods and some final comparisons.
+
+**Final score:** 2/2
