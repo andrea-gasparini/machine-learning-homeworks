@@ -9,3 +9,5 @@ The code used to solve the problem is avaiable in `homework2.ipynb`.
 
 You can also find a report describing the implemented solution in `report.pdf`,
 with the data preprocessing, the implemented Networks, the evaluation methods and some final comparisons.
+
+**Final score:** 2/2
