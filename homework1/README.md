@@ -7,7 +7,7 @@ using the data sets available in the links below.
 - [Dataset 1 (with duplicates)](https://drive.google.com/file/d/1vKT9OzJwM6gKACyElzECW49X5nFeVxad)
 - [Dataset 2 (without duplicates)](https://drive.google.com/file/d/1olYSZIqHbKQQh__l222cwDj33n3h-zAk)
 
-The code used to solve the problem is avaiable in `homework1.py`.
+The code used to solve the problem is available in `homework1.py`.
 
 You can also find a report describing the implemented solution in `report.pdf`,
 with the data preprocessing, the feature extraction, the evaluation methods and some final comparisons.
