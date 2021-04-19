@@ -1,5 +1,5 @@
 # Machine Learning homeworks (A.Y. 2020-2021)
-Homeworks of the Machine Learning course @ Sapienza University of Rome
+This repository contains the two homeworks developed for the course Machine Learning @ Sapienza University of Rome.
 
 ## Homework 1: Assembly Functions classification
 
